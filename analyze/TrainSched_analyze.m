@@ -1,8 +1,7 @@
 %% Load data %% 
 clear all
 
-cd('/Users/Kristy/Desktop/Ivry Lab/MatLab/TrainSched') % direct to correct location
-load('/Users/Kristy/Desktop/Ivry Lab/MatLab/TrainSched/TrainSched_data.mat'); % load data file
+load('TrainSched_data.mat'); % load data file
 
 %%% REAL DATA
     K_subj_names = {'RBA_K1','RBA_K15','RBC_K6','RBC_K19','RBD_K8','RBD_K22',...
