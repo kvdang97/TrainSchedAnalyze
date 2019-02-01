@@ -1,6 +1,7 @@
 %% Load data %% 
 clear all
 
+addpath(genpath(pwd))
 load('TrainSched_data.mat'); % load data file
 
 %%% REAL DATA
