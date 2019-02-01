@@ -18,9 +18,10 @@ y_pred = SSM_simulator(A, B, ntrials, rot);
 sq_err = nansum( (y_data' - y_pred).^2);
 
 
-% figure; hold on;
-% plot(1:ntrials, y_data, '.b')
-% plot(1:ntrials, y_pred, '.r')
-% str = sprintf('A = %.3f, B = %.3f, rSq = %.3f', A, B, sq_err);
-% title(str)
+figure; hold on;
+plot(1:ntrials, y_data, '.b')
+plot(1:ntrials, y_pred, '.r')
+str = sprintf('A = %.3f, B = %.3f, R
+
+title(str)
 end
