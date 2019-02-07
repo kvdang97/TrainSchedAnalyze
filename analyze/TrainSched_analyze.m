@@ -482,6 +482,73 @@ rtEarlyRF = lme.Coefficients;
         ylabel('Reaction Time (sec)') % y-axis label
         set(gca,'FontSize',13);
 
+%% RT - REG - Bar Graph for EARLY RNF split by TARGET %% 
+% Use baseline-subtracted, flipped data
+% And only grab data for Training (3), RNF (6), and RF (8) Blocks
+    rnfCN = D2.CN == 146;
+    E = D2((D2.Group < 3 & rnfCN),:);
+
+%%% AVERAGE DATA %%%
+    %for every subject and every abs(tgt rotation)
+    subj_mean = varfun(@nanmean,E,'GroupingVariables',{'SN','Group','ti','compBlock'},'OutputFormat','table'); 
+    
+    %Calculate group MEAN and SEM (by Experiment, Group, abs(tgt rotation))
+    grp_mean = varfun(@nanmean,subj_mean,'GroupingVariables',{'Group','ti','compBlock'},'OutputFormat','table'); 
+    grp_sem = varfun(@sem,subj_mean,'GroupingVariables',{'Group','ti','compBlock'},'OutputFormat','table'); 
+    
+%%% RT BAR GRAPH %%%
+    xpos = [1 2 3];
+    space = [0 .25];
+
+    groups = [1 2];
+
+    % Loop through groups, conditions, and rotations to plot graph
+        figure;
+        for ti = 1:length(target)
+            for gi = 1:length(groups)
+                
+                % Set index
+                indx = grp_mean.Group == groups(gi) & grp_mean.ti == target(ti);
+                
+                % Plot group bars
+                bar(xpos(ti)+space(gi),grp_mean.nanmean_nanmean_RT(indx),.25,color{gi}); hold on;
+                
+                % Plot SEM
+                plot([xpos(ti)+space(gi) xpos(ti)+space(gi)],...
+                    [grp_mean.nanmean_nanmean_RT(indx) - grp_sem.sem_nanmean_RT(indx), ...
+                    grp_mean.nanmean_nanmean_RT(indx) + grp_sem.sem_nanmean_RT(indx)], ...
+                    'linewidth',2,'color','k');
+                
+                hold on
+                % Plot individual data points
+                subj_indx = subj_mean.Group == groups(gi) & subj_mean.ti == target(ti);
+                xcoords = repmat(xpos(ti)+space(gi), length(subj_mean.nanmean_RT(subj_indx)),1) +...
+                    (randn(length(subj_mean.nanmean_RT(subj_indx)),1)/40) - 0.07; %add jitter
+                ycoords = subj_mean.nanmean_RT(subj_indx);
+                scatterplot(xcoords,ycoords,'markercolor', 'k','markersize',5, 'markerfill','w'); 
+
+            end
+        end
+        
+        % Set axis limits
+        ylims = [0 1.25];
+        xlims = [.75 3.5];
+        
+        % Title and axes labels
+        str = sprintf('Reaction Time - Early Retest No Feedback');
+        title(str,'interpreter','none');
+        set(gca,'xtick',[1 1.25 2 2.25 3 3.25],'xticklabel',...
+            {'Blocked 30 deg','Random 30 deg','Blocked 150 deg','Random 150 deg','Blocked 270 deg','Random 270 deg'}...
+            ,'ylim',ylims,'xlim',xlims,'xticklabelrotation',45)
+        ylabel('Reaction Time (sec)') % y-axis label
+        set(gca,'FontSize',13);
+
+%%% Linear Mixed Effect %%%
+    subj_mean.Group = categorical(subj_mean.Group);
+    subj_mean.ti = categorical(subj_mean.ti);
+    lme = fitlme(subj_mean,'nanmean_RT ~ Group + ti + (1|SN)');
+    RTgtEarlyRNF = lme.Coefficients;
+
 %% Hand Angle - REG - GROUP averaged EVERY trial split by ROTATION %% 
 D2.HandAngle = D2.hand_theta;
 
@@ -1095,7 +1162,7 @@ dpPlotTrainSched(E, 'ReactionTime', [-1 176 0 1.5])
            rtRF = lme.Coefficients;
        end
    end
- 
+
 %% Hand Angle - EC - GROUP averaged EVERY trial split by ROTATION %% 
 D2.HandAngle = D2.hand_theta;
 
@@ -1346,6 +1413,7 @@ E=D2; %use baseline-subtracted, flipped data
     grpMean = varfun(@nanmean,E,'GroupingVariables',{'Experiment','Group','SN',...
         'blockNum','abs_tgt_rot'},'OutputFormat','table'); %blockNum 4 = AE, blockNum 6 = RNF 
 
+    group = unique(E.Group);
 %%% Graph figure %%%
     for gi = 1:length(group)
         sn = unique(E.SN(E.Group == group(gi)));
@@ -1373,4 +1441,42 @@ E=D2; %use baseline-subtracted, flipped data
             legend('30','45','60')
         end
     end
+
+%% Aiming in RNF vs. Hand Angle in AE - Split by GROUP & TARGET %%
+E=D2; %use baseline-subtracted, flipped data
+%blockNum 4 = AE, blockNum 6 = RNF 
+
+%%% Average data across subjects for every group %%%
+    grpMean = varfun(@nanmean,E,'GroupingVariables',{'Experiment','Group','SN',...
+        'blockNum','ti'},'OutputFormat','table'); %blockNum 4 = AE, blockNum 6 = RNF 
+
+    group = unique(E.Group);
+%%% Graph figure %%%
+    for gi = 1:length(group)
+        sn = unique(E.SN(E.Group == group(gi)));
+
+        subplot(2,2,gi)
+        for si = 1:length(sn)
+            for ti = 1:length(target)
+
+                indx = grpMean.Group == group(gi) & grpMean.SN == sn(si) &...
+                    grpMean.ti == target(ti);
+
+                x = grpMean.nanmean_hand_theta(indx & grpMean.blockNum == 4);
+                y = grpMean.nanmean_hand_theta(indx & grpMean.blockNum == 6);
+                plot(x,y,'.','markersize',15,'color',color{ti}); hold all;
+
+            end
+
+            % Title and axes labels
+            str = sprintf('%s', K_Group_names{gi});
+            title(str, 'interpreter','none')
+            xlabel('Aftereffect (deg)') % x-axis label
+            ylabel('Aiming in RNF (deg)') % y-axis label
+            set(gca,'FontSize',13);
+
+            legend('30','150','270')
+        end
+    end
+    
     
