@@ -1,5 +1,3 @@
-automatic_scroll = 2; seconds_to_pause = 5;
-
 subj = unique(D2.SN);
 target = unique(D2.ti);
 si = 1;
@@ -43,31 +41,19 @@ while si > 0 && si <= length(subj)
         plot(1:ntrials, y_pred, '.r')
         
          %%% Title and Axis labels
-        str = sprintf('SN %d, %uº, A = %.3f, B = %.3f', si, target(ti), A, B);
+        str = sprintf('SN %d, %uº, A = %.2f, B = %.2f', si, target(ti), A, B);
         title(str,'interpreter','none');
         set(gca,'FontSize',13);
         
     end
     
     %%% Scroll through subjects
-    if automatic_scroll ==1
-        pause(seconds_to_pause)
+    w = waitforbuttonpress;
+    if w == 0
         si = si + 1;
-    elseif automatic_scroll == 2
-        w = waitforbuttonpress;
-        if w == 0
-            si = si + 1;
-        elseif w==1
-            si = si - 1;
-        end
-    else
-        break
+    elseif w==1
+        si = si - 1;
     end
-    if automatic_scroll ~=0
-        clf(Every_sub)
-    end
-end
-if automatic_scroll ~=0
-    close(Every_sub)
+    clf(Every_sub)
 end
 
