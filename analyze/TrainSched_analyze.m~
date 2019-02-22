@@ -1779,8 +1779,7 @@ T.ti = categorical(T.ti);
 T.abs_tgt_rot = categorical(T.abs_tgt_rot);
 
 % Linear Mixed Effect
-% lme = fitlme(T,'trainAeDiff ~ Group + abs_tgt_rot + ti + (1|SN)');
-lme = fitlme(T,'trainAeDiff ~ trainCond + abs_tgt_rot + ti + (1|SN)');
+lme = fitlme(T,'trainAeDiff ~ Group + trainCond + abs_tgt_rot + ti + (1|SN)');
 lme
 
 
