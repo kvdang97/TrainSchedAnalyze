@@ -1807,7 +1807,7 @@ T = table(trainData.SN, trainData.Group, trainData.trainCond, trainData.ti, trai
     'VariableNames',{'SN','Group','trainCond','ti','abs_tgt_rot','trainHand','aeHand','trainAeDiff'});
 
 
-% New variable - How many blocks ago was the target? this line replaces 30, 150, 270 with 3,2,1
+% How many blocks ago was the target? this line replaces 30, 150, 270 with 3,2,1
 T.numBlocksBack = changem(T.ti,[3 2 1],[30 150 270]);
 
 % Turn some variables into categorical variables
